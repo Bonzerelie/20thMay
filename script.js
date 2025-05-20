@@ -311,6 +311,10 @@ function generateNoteRangeText() {
       resetScore();
       toggleDisplay('notes');
       scaleLabel.textContent = scaleData[currentScale].label;
+      const diagram = document.getElementById('scale-diagram');
+    diagram.src = `images/${currentScale}Major.png`;
+    diagram.classList.remove('hidden');
+    diagram.alt = `${currentScale} Major Scale Diagram`;
       playRefBtn.textContent = `Play Reference (${scaleData[currentScale].noteOrder[0]} - Tonic)`;
       loadNewNote();
     });
