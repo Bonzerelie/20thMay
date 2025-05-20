@@ -264,15 +264,17 @@ setTimeout(() => {
   }
 
   function toggleDisplay(mode) {
-    showDegrees = mode === 'degrees';
-    updateNoteButtonLabels();
-    displayNotesBtn.classList.toggle('selected', !showDegrees);
-    displayDegreesBtn.classList.toggle('selected', showDegrees);
-    scaleLabel.textContent = scaleData[currentScale].label;
-    octaveLabel.textContent = generateNoteRangeText();
-    playRefBtn.textContent = `Play Reference (${scaleData[currentScale].noteOrder[0]} - Tonic)`;
-    promptText.textContent = 'Which note was played?';
-  }
+  showDegrees = mode === 'degrees';
+  displayNotesBtn.classList.toggle('selected', !showDegrees);
+  displayDegreesBtn.classList.toggle('selected', showDegrees);
+  scaleLabel.textContent = scaleData[currentScale].label;
+  octaveLabel.textContent = generateNoteRangeText();
+  playRefBtn.textContent = `Play Reference (${scaleData[currentScale].noteOrder[0]} - Tonic)`;
+  promptText.textContent = isAnswered ? promptText.textContent : 'Which note was played?';
+
+  refreshNoteButtons(); // Rebuild buttons and labels without changing the current note
+}
+
 
   function updateNoteButtonLabels() {
   const buttons = noteButtonsContainer.querySelectorAll('.blue-button');
