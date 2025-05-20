@@ -175,6 +175,12 @@ body {
 }
 
 #next-button {
-  background-color: #FF9800;
+  background-color: #a569bd;
   color: white;
+}
+
+#next-button:disabled {
+  background-color: #BDBDBD; /* Light grey when disabled */
+  color: white;
+  cursor: not-allowed;
 }
