@@ -168,7 +168,8 @@ body {
 }
 
 .scale-diagram {
-  max-height: 50%;
+  margin-top: 5px;
+  max-height: 100px;
   max-width: auto;
   margin-bottom: 10px;
 }
