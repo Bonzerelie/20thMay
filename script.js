@@ -360,4 +360,17 @@ diagram.src = `images/${encodeURIComponent(currentScale)}Major.png`;
       loadNewNote();
     }
   });
+  function refreshNoteButtons() {
+  buildNoteButtons();
+  const buttons = noteButtonsContainer.querySelectorAll('.blue-button');
+  buttons.forEach(btn => {
+    btn.disabled = isAnswered;
+    btn.classList.remove('correct', 'incorrect');
+    const note = btn.getAttribute('data-note');
+    if (isAnswered && note === getNoteName(currentNote, currentScale)) {
+      btn.classList.add('correct');
+    }
+  });
+  updateNoteButtonLabels();
+}
 });
