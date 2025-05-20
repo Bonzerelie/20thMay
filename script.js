@@ -144,28 +144,27 @@ document.addEventListener('DOMContentLoaded', () => {
     }
   };
 
-  function playNote(noteFile) {
+    function playNote(noteFile) {
     audio.src = `audio/${encodeURIComponent(noteFile)}.mp3`;
     audio.play();
   }
 
-function generateNoteRangeText() {
-  const data = scaleData[currentScale];
-  const noteNames = data.noteOrder.slice(0, currentMode);
-  const tonic = noteNames[0]; // First note in the scale
-  const tonicFiles = data.noteMap[tonic];
+  function generateNoteRangeText() {
+    const data = scaleData[currentScale];
+    const noteNames = data.noteOrder.slice(0, currentMode);
+    const tonic = noteNames[0];
+    const tonicFiles = data.noteMap[tonic];
 
-  if (currentMode === 8 && tonicFiles.length === 2) {
-    // Extract octaves from filenames like "ab3" → "3"
-    const [note1, note2] = tonicFiles.map(f => f.match(/\d+/)?.[0]);
-    return `${data.octave} — the ${tonic} button works for both ${tonic}${note1} and ${tonic}${note2}!`;
+    if (currentMode === 8 && tonicFiles.length === 2) {
+      const [note1, note2] = tonicFiles.map(f => f.match(/\d+/)?.[0]);
+      return `${data.octave} — the ${tonic} button works for both ${tonic}${note1} and ${tonic}${note2}!`;
+    }
+
+    const formattedList = noteNames.length === 2
+      ? `${noteNames[0]} and ${noteNames[1]}`
+      : `${noteNames.slice(0, -1).join(', ')} and ${noteNames[noteNames.length - 1]}`;
+    return `Notes ${formattedList} from one octave`;
   }
-
-  const formattedList = noteNames.length === 2
-    ? `${noteNames[0]} and ${noteNames[1]}`
-    : `${noteNames.slice(0, -1).join(', ')} and ${noteNames[noteNames.length - 1]}`;
-  return `Notes ${formattedList} from one octave`;
-}
 
   function getNoteName(filename, scale) {
     const reverseMap = {};
@@ -189,14 +188,11 @@ function generateNoteRangeText() {
         ? (currentMode === 8 && note === data.noteOrder[0] ? '1st/8th' : data.degreeMap[note])
         : note;
       if (currentMode === 8 && showDegrees && note === data.noteOrder[0]) {
-  btn.classList.add('wide-label');
+        btn.classList.add('wide-label');
       }
       btn.addEventListener('click', handleAnswer);
       noteButtonsContainer.appendChild(btn);
     });
-    if (currentMode === 8 && showDegrees && note === data.noteOrder[0]) {
-  btn.classList.add('wide-label');
-}
   }
 
   function loadNewNote() {
@@ -242,10 +238,7 @@ function generateNoteRangeText() {
     updateScore();
     nextBtn.disabled = false;
     nextBtn.classList.add('pop-animation');
-setTimeout(() => {
-  nextBtn.classList.remove('pop-animation');
-}, 300);
-
+    setTimeout(() => nextBtn.classList.remove('pop-animation'), 300);
     [...noteButtonsContainer.querySelectorAll('.blue-button')].forEach(btn => btn.disabled = true);
   }
 
@@ -264,36 +257,50 @@ setTimeout(() => {
   }
 
   function toggleDisplay(mode) {
-  showDegrees = mode === 'degrees';
-  displayNotesBtn.classList.toggle('selected', !showDegrees);
-  displayDegreesBtn.classList.toggle('selected', showDegrees);
-  scaleLabel.textContent = scaleData[currentScale].label;
-  octaveLabel.textContent = generateNoteRangeText();
-  playRefBtn.textContent = `Play Reference (${scaleData[currentScale].noteOrder[0]} - Tonic)`;
-  promptText.textContent = isAnswered ? promptText.textContent : 'Which note was played?';
-
-  refreshNoteButtons(); // Rebuild buttons and labels without changing the current note
-}
-
+    showDegrees = mode === 'degrees';
+    displayNotesBtn.classList.toggle('selected', !showDegrees);
+    displayDegreesBtn.classList.toggle('selected', showDegrees);
+    scaleLabel.textContent = scaleData[currentScale].label;
+    octaveLabel.textContent = generateNoteRangeText();
+    playRefBtn.textContent = `Play Reference (${scaleData[currentScale].noteOrder[0]} - Tonic)`;
+    promptText.textContent = isAnswered ? promptText.textContent : 'Which note was played?';
+    refreshNoteButtons();
+  }
 
   function updateNoteButtonLabels() {
-  const buttons = noteButtonsContainer.querySelectorAll('.blue-button');
-  const data = scaleData[currentScale];
+    const buttons = noteButtonsContainer.querySelectorAll('.blue-button');
+    const data = scaleData[currentScale];
+    buttons.forEach(btn => {
+      const note = btn.getAttribute('data-note');
+      btn.textContent = showDegrees
+        ? (currentMode === 8 && note === data.noteOrder[0] ? '1st/8th' : data.degreeMap[note])
+        : note;
+      btn.classList.toggle('wide-label', showDegrees && currentMode === 8 && note === data.noteOrder[0]);
+      btn.style.display = 'none';
+      btn.offsetHeight;
+      btn.style.display = '';
+    });
+  }
 
-  buttons.forEach(btn => {
-    const note = btn.getAttribute('data-note');
-    btn.textContent = showDegrees
-      ? (currentMode === 8 && note === data.noteOrder[0] ? '1st/8th' : data.degreeMap[note])
-      : note;
-
-    btn.classList.toggle('wide-label', showDegrees && currentMode === 8 && note === data.noteOrder[0]);
-
-    // Force reflow (optional but helps in some rendering edge cases)
-    btn.style.display = 'none';
-    btn.offsetHeight; // trigger reflow
-    btn.style.display = '';
-  });
-}
+  function refreshNoteButtons() {
+    buildNoteButtons();
+    const buttons = noteButtonsContainer.querySelectorAll('.blue-button');
+    buttons.forEach(btn => {
+      const note = btn.getAttribute('data-note');
+      if (isAnswered) {
+        btn.disabled = true;
+        btn.classList.remove('correct', 'incorrect');
+        if (note === getNoteName(currentNote, currentScale)) {
+          btn.classList.add('correct');
+        }
+      } else {
+        btn.disabled = false;
+        btn.classList.remove('correct', 'incorrect');
+      }
+    });
+    nextBtn.disabled = !isAnswered;
+    updateNoteButtonLabels();
+  }
 
   function updateModeButtonsState() {
     addNoteBtn.disabled = currentMode >= 8;
@@ -319,9 +326,9 @@ setTimeout(() => {
       toggleDisplay('notes');
       scaleLabel.textContent = scaleData[currentScale].label;
       const diagram = document.getElementById('scale-diagram');
-diagram.src = `images/${encodeURIComponent(currentScale)}Major.png`;
-    diagram.classList.remove('hidden');
-    diagram.alt = `${currentScale} Major Scale Diagram`;
+      diagram.src = `images/${encodeURIComponent(currentScale)}Major.png`;
+      diagram.classList.remove('hidden');
+      diagram.alt = `${currentScale} Major Scale Diagram`;
       playRefBtn.textContent = `Play Reference (${scaleData[currentScale].noteOrder[0]} - Tonic)`;
       loadNewNote();
     });
@@ -362,17 +369,4 @@ diagram.src = `images/${encodeURIComponent(currentScale)}Major.png`;
       loadNewNote();
     }
   });
-  function refreshNoteButtons() {
-  buildNoteButtons();
-  const buttons = noteButtonsContainer.querySelectorAll('.blue-button');
-  buttons.forEach(btn => {
-    btn.disabled = isAnswered;
-    btn.classList.remove('correct', 'incorrect');
-    const note = btn.getAttribute('data-note');
-    if (isAnswered && note === getNoteName(currentNote, currentScale)) {
-      btn.classList.add('correct');
-    }
-  });
-  updateNoteButtonLabels();
-}
 });
