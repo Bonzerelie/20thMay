@@ -173,3 +173,8 @@ body {
   max-width: auto;
   margin-bottom: 0px;
 }
+
+#next-button {
+  background-color: #FF9800;
+  color: white;
+}
