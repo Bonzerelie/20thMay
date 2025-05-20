@@ -241,6 +241,11 @@ function generateNoteRangeText() {
     }
     updateScore();
     nextBtn.disabled = false;
+    nextBtn.classList.add('pop-animation');
+setTimeout(() => {
+  nextBtn.classList.remove('pop-animation');
+}, 300);
+
     [...noteButtonsContainer.querySelectorAll('.blue-button')].forEach(btn => btn.disabled = true);
   }
 
