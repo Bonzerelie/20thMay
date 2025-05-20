@@ -166,3 +166,9 @@ body {
   margin-top: 0;
   margin-bottom: 10px;
 }
+
+.scale-diagram {
+  max-width: 100%;
+  height: auto;
+  margin-bottom: 10px;
+}
